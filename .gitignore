@@ -1,0 +1,8 @@
+# Ignore local and large files
+httrack_output/
+**/.DS_Store
+playwright_output/scraped_data.json
+playwright_output/text_content.txt
+*.log
+node_modules/
+.venv/

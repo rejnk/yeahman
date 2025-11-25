@@ -106,4 +106,24 @@
       personalize(); 
     }
   }, 500);
+  
+  // Watch for dynamically added Login/Register buttons and replace them
+  const acc = getAccount();
+  if(acc){
+    const observer = new MutationObserver(function(){
+      const nodes = Array.from(document.querySelectorAll('a, button'));
+      nodes.forEach(el => {
+        const text = normalizeSpace(el.textContent);
+        const href = (el.getAttribute('href')||'');
+        if((text.includes('Login') || text.includes('Register') || /login\.html/i.test(href)) && !text.includes('~')){
+          console.log('[FlowUs Profile] Found dynamically added Login/Register, replacing...');
+          el.textContent = `~${acc.org}`;
+          if(el.tagName.toLowerCase() === 'a') el.setAttribute('href', '#');
+          el.addEventListener('click', function(e){ e.preventDefault(); togglePanel(); });
+        }
+      });
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+    console.log('[FlowUs Profile] MutationObserver active - watching for Login/Register buttons');
+  }
 })();

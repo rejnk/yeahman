@@ -26,15 +26,19 @@
   function replaceLoginRegister(org){
     // Replace any anchor/button that reads Login/Register or points to login.html
     const nodes = Array.from(document.querySelectorAll('a, button'));
+    let replaced = 0;
     nodes.forEach(el => {
       const text = normalizeSpace(el.textContent);
       const href = (el.getAttribute('href')||'');
-      if (text === 'Login/Register' || /login\.html/i.test(href)){
+      // More flexible matching
+      if (text.includes('Login') || text.includes('Register') || /login\.html/i.test(href)){
         el.textContent = `~${org}`;
         if (el.tagName.toLowerCase() === 'a') el.setAttribute('href', '#');
         el.addEventListener('click', function(e){ e.preventDefault(); togglePanel(); });
+        replaced++;
       }
     });
+    console.log(`[FlowUs Profile] Replaced ${replaced} Login/Register buttons with ~${org}`);
   }
 
   function buildPanel(account){
@@ -79,7 +83,11 @@
     let account = getAccount();
     const orgCookie = getCookie('flowusOrg');
     if(!account && orgCookie){ account = { org: orgCookie, role: 'Member' }; setAccount(account); }
-    if(!account) return; // nothing to do
+    if(!account) {
+      console.log('[FlowUs Profile] No account found');
+      return; // nothing to do
+    }
+    console.log('[FlowUs Profile] Account found:', account);
     replaceLoginRegister(account.org);
     // Show compact profile by default once per page load
     buildPanel(account);

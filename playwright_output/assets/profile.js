@@ -100,13 +100,19 @@ console.log('[FlowUs Profile] Script loaded and executing...');
     personalize();
   }
   
-  // Re-check after a short delay to catch late localStorage updates
-  setTimeout(function(){
+  // Aggressive retry mechanism to catch dynamically rendered buttons
+  var retries = 0;
+  var maxRetries = 20;
+  var retryInterval = setInterval(function(){
+    retries++;
     const acc = getAccount();
-    if(acc && document.querySelector('a, button')){ 
-      personalize(); 
+    if(acc){
+      personalize();
+      if(retries >= maxRetries) clearInterval(retryInterval);
+    } else {
+      if(retries >= maxRetries) clearInterval(retryInterval);
     }
-  }, 500);
+  }, 200);
   
   // Watch for dynamically added Login/Register buttons and replace them
   const acc = getAccount();

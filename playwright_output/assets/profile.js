@@ -90,4 +90,12 @@
   } else {
     personalize();
   }
+  
+  // Re-check after a short delay to catch late localStorage updates
+  setTimeout(function(){
+    const acc = getAccount();
+    if(acc && document.querySelector('a, button')){ 
+      personalize(); 
+    }
+  }, 500);
 })();

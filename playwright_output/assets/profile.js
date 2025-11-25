@@ -1,4 +1,5 @@
 // Profile personalization script (persistent per device)
+console.log('[FlowUs Profile] Script loaded and executing...');
 (function(){
   function getCookie(name){
     const m = document.cookie.match(new RegExp('(?:^|; )' + name.replace(/([.$?*|{}()\[\]\\\/\+^])/g,'\\$1') + '=([^;]*)'));

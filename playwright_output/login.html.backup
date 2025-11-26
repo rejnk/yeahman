@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login / Register - FlowUs</title>
+    <link href="./assets/main.d045d5cb.css" rel="stylesheet">
+    <style>
+        :root {
+            --accent: #2563eb; /* professional blue */
+            --bg: #f6f7fb;    /* light neutral background */
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 20px;
+        }
+        .login-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+            max-width: 450px;
+            width: 100%;
+            text-align: center;
+            position: relative;
+        }
+        .logo {
+            width: 120px;
+            margin-bottom: 30px;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+            box-sizing: border-box;
+        }
+        /* Ensure placeholders remain readable even if input uses uppercase */
+        input::placeholder { text-transform: none !important; }
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: #000;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-bottom: 15px;
+        }
+        .btn:hover {
+            background: #333;
+        }
+        .btn-secondary {
+            background: transparent;
+            color: var(--accent);
+            border: 2px solid var(--accent);
+        }
+        .btn-secondary:hover {
+            background: var(--accent);
+            color: white;
+        }
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .divider {
+            margin: 25px 0;
+            color: #999;
+            font-size: 14px;
+        }
+        .back-link {
+            margin-top: 20px;
+            display: block;
+            color: #666;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .back-link:hover {
+            color: #333;
+        }
+        .invite-section {
+            display: none;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+        .invite-section.active {
+            display: block;
+        }
+        .department-section {
+            display: none;
+            margin-top: 20px;
+        }
+        .department-section.active {
+            display: block;
+        }
+        .department-note {
+            font-size: 12px;
+            color: #666;
+            margin-top: 10px;
+            font-style: italic;
+        }
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 16px 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 10000;
+            animation: slideIn 0.3s ease-out;
+            width: calc(100% - 40px);
+            max-width: 520px;
+        }
+        .toast.success {
+            background: #10b981;
+        }
+        .toast.error {
+            background: #ef4444;
+        }
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        .toast-close {
+            float: right;
+            margin-left: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            opacity: 0.8;
+        }
+        .toast-close:hover {
+            opacity: 1;
+        }
+        select {
+            cursor: pointer;
+        }
+        .department-option {
+            padding: 12px;
+            margin-bottom: 8px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+        }
+        .department-option:hover {
+            border-color: var(--accent);
+            background: #eef2ff;
+        }
+        .department-option.selected {
+            border-color: var(--accent);
+            background: var(--accent);
+            color: white;
+        }
+        .alt-link {
+            display: inline-block;
+            margin-top: 14px;
+            font-size: 13px;
+            color: #6b7280;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <img src="./assets/home-logo.78d948f2.3708f5f82c0549fd1920.png" alt="FlowUs Logo" class="logo">
+        <h1 id="title">Welcome to FlowUs</h1>
+        <p class="subtitle" id="subtitle">Login or create a new account</p>
+        
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" placeholder="your@email.com" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="••••••••" required>
+            </div>
+            <button type="submit" class="btn">Login</button>
+        </form>
+        
+        <div class="divider">or</div>
+        
+        <button class="btn btn-secondary" id="registerBtn">Register</button>
+        
+        <div class="invite-section" id="inviteSection">
+            <div class="form-group">
+                <label for="inviteCode">Invite Code</label>
+                <input type="text" id="inviteCode" name="inviteCode" placeholder="Enter your invite code provided by a workflow." style="text-transform: uppercase;">
+            </div>
+            <button type="button" class="btn" id="submitInviteBtn">Submit Invite Code</button>
+        </div>
+
+        <div class="department-section" id="departmentSection">
+            <div class="form-group">
+                <label for="department">Please select your preferred department:</label>
+                <div id="departmentOptions"></div>
+                <p class="department-note">You will be automatically assigned to your selected department upon installing the FlowUs application.</p>
+            </div>
+            <button type="button" class="btn" id="applyDepartmentBtn" disabled>Apply</button>
+        </div>
+
+        <!-- Bloomberg position selection -->
+        <div class="department-section" id="positionSection">
+            <div class="form-group">
+                <label for="position">What position did your workflow assign you?</label>
+                <div id="positionOptions"></div>
+            </div>
+            <button type="button" class="btn" id="applyPositionBtn" disabled>Apply</button>
+        </div>
+        
+        <a id="backToLoginLink" class="alt-link" style="display:none;">Already logged in?</a>
+        <a href="index.html" class="back-link">← Back to Home</a>
+    </div>
+    
+    <script>
+        console.log('[FlowUs Login] Script starting...');
+        // Invite code mappings
+        const inviteCodes = {
+            'BLOOM-25678C-BERG08754': {
+                name: 'Bloomberg',
+                url: 'bloomberg.com',
+                positionSelect: true
+            },
+            'ESPN-3466CB54-CO97FX3': {
+                name: 'ESPN',
+                url: 'espn.com',
+                special: false
+            },
+            'ETHER-FI234CPX56-FI244CLG9': {
+                name: 'ether.fi',
+                url: null,
+                special: 'etherfi'
+            },
+            'TRONDA-O24XC7753-99XGRZORG': {
+                name: 'trondao.org',
+                url: null,
+                special: false
+            }
+        };
+
+        // Department options for ether.fi
+        const departments = [
+            'Staff Smart Contract Engineer',
+            'Foundation Manager',
+            'Compliance Manager - Payments',
+            'Senior DevOps Engineer',
+            'Senior Software Engineer - Backend',
+            'KYC Analyst – Ether.fi Cash Program',
+            'Customer Service Representative',
+            'Front End Engineer',
+            'Smart Contract Engineer',
+            'Senior Full Stack Software Engineer',
+            'Senior CX Manager'
+        ];
+
+        // Bloomberg positions
+        const bloombergPositions = [
+            'Article Writer',
+            'Marketing Specialist',
+            'Financial Analyst',
+            'Data Journalist',
+            'Research Associate',
+            'Social Media Strategist',
+            'Editorial Assistant',
+            'Market Reporter'
+        ];
+
+        // Toast notification function
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <span class="toast-close" onclick="this.parentElement.remove()">&times;</span>
+                ${message}
+            `;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'slideIn 0.3s ease-out reverse';
+                setTimeout(() => toast.remove(), 300);
+            }, type === 'success' ? 5000 : 7000);
+        }
+
+        // Mode toggling
+        function setMode(mode) {
+            const loginForm = document.getElementById('loginForm');
+            const inviteSection = document.getElementById('inviteSection');
+            const departmentSection = document.getElementById('departmentSection');
+            const registerBtn = document.getElementById('registerBtn');
+            const backToLoginLink = document.getElementById('backToLoginLink');
+            const title = document.getElementById('title');
+            const subtitle = document.getElementById('subtitle');
+            const divider = document.querySelector('.divider');
+            const positionSection = document.getElementById('positionSection');
+
+            if (mode === 'register') {
+                // UI setup for register
+                title.textContent = 'Register';
+                subtitle.textContent = 'enter your invite code';
+                loginForm.style.display = 'none';
+                registerBtn.style.display = 'none';
+                backToLoginLink.style.display = 'inline-block';
+                inviteSection.classList.add('active');
+                inviteSection.style.display = 'block';
+                departmentSection.classList.remove('active');
+                departmentSection.style.display = 'none';
+                positionSection.classList.remove('active');
+                positionSection.style.display = 'none';
+                if (divider) divider.style.display = 'none';
+                showToast('Hello! If you got invited by a company to a workflow please enter your invite code.');
+            } else {
+                // UI setup for login
+                title.textContent = 'Welcome to FlowUs';
+                subtitle.textContent = 'Login or create a new account';
+                loginForm.style.display = 'block';
+                registerBtn.style.display = 'inline-block';
+                backToLoginLink.style.display = 'none';
+                inviteSection.classList.remove('active');
+                inviteSection.style.display = 'none';
+                departmentSection.classList.remove('active');
+                departmentSection.style.display = 'none';
+                positionSection.classList.remove('active');
+                positionSection.style.display = 'none';
+                document.getElementById('inviteCode').value = '';
+                document.getElementById('applyDepartmentBtn').disabled = true;
+                if (divider) divider.style.display = 'block';
+            }
+        }
+
+        // Register button click
+        document.getElementById('registerBtn').addEventListener('click', function() {
+            setMode('register');
+        });
+
+        // Already logged in link
+        document.getElementById('backToLoginLink').addEventListener('click', function() {
+            setMode('login');
+        });
+
+        // Submit invite code
+        document.getElementById('submitInviteBtn').addEventListener('click', function() {
+            console.log('[FlowUs Login] Submit button clicked');
+            const inviteCode = document.getElementById('inviteCode').value.trim().toUpperCase();
+            console.log('[FlowUs Login] Invite code entered:', inviteCode);
+            
+            if (!inviteCode) {
+                showToast('Please enter an invite code', 'error');
+                return;
+            }
+
+            const company = inviteCodes[inviteCode];
+            console.log('[FlowUs Login] Company lookup result:', company);
+
+            if (!company) {
+                showToast('Invalid invite code. Please check and try again.', 'error');
+                return;
+            }
+
+            // If it's Bloomberg -> ask for position selection
+            if (company.positionSelect) {
+                console.log('[FlowUs Login] Bloomberg detected - showing position selector');
+                document.getElementById('inviteSection').style.display = 'none';
+                const departmentSection = document.getElementById('departmentSection');
+                departmentSection.classList.add('active');
+                departmentSection.style.display = 'block';
+                // Update label
+                const label = departmentSection.querySelector('label');
+                if (label) label.textContent = 'What position did your workflow assign you?';
+                // Populate as positions
+                const departmentOptions = document.getElementById('departmentOptions');
+                departmentOptions.innerHTML = '';
+                bloombergPositions.forEach(role => {
+                    console.log('[FlowUs Login] Creating position button for:', role);
+                    const option = document.createElement('div');
+                    option.className = 'department-option';
+                    option.innerHTML = `<strong>${role}</strong><br><span style="font-size: 12px;">Apply</span>`;
+                    option.addEventListener('click', function() {
+                        document.querySelectorAll('.department-option').forEach(opt => opt.classList.remove('selected'));
+                        this.classList.add('selected');
+                        document.getElementById('applyDepartmentBtn').disabled = false;
+                    });
+                    departmentOptions.appendChild(option);
+                });
+                // Mark current company in memory
+                window.__currentCompany = company;
+                return;
+            }
+
+            // If it's ether.fi (special case), show department selection
+            if (company.special) {
+                document.getElementById('inviteSection').style.display = 'none';
+                document.getElementById('departmentSection').classList.add('active');
+                
+                // Populate department options
+                const departmentOptions = document.getElementById('departmentOptions');
+                departmentOptions.innerHTML = '';
+                
+                departments.forEach(dept => {
+                    const option = document.createElement('div');
+                    option.className = 'department-option';
+                    option.innerHTML = `<strong>${dept}</strong><br><span style="font-size: 12px;">Apply</span>`;
+                    option.addEventListener('click', function() {
+                        // Remove selected class from all options
+                        document.querySelectorAll('.department-option').forEach(opt => {
+                            opt.classList.remove('selected');
+                        });
+                        // Add selected class to clicked option
+                        this.classList.add('selected');
+                        document.getElementById('applyDepartmentBtn').disabled = false;
+                    });
+                    departmentOptions.appendChild(option);
+                });
+                window.__currentCompany = company;
+                return;
+            } else {
+                // Regular success message
+                const companyName = company.url ? company.name : company.name;
+                const urlText = company.url ? ` at ${company.url}` : '';
+                showToast(`Congratulations! You've been invited by a Colleague At @${companyName}${urlText}`, 'success');
+                
+                // Hide invite section after success
+                setTimeout(() => {
+                    document.getElementById('inviteSection').classList.remove('active');
+                    document.getElementById('inviteCode').value = '';
+                }, 2000);
+            }
+        });
+
+        // Apply department button
+        document.getElementById('applyDepartmentBtn').addEventListener('click', function() {
+            const selected = document.querySelector('.department-option.selected');
+            if (selected) {
+                const chosen = selected.querySelector('strong').textContent;
+                const company = window.__currentCompany || {};
+
+                // If Bloomberg: welcome, persist and redirect
+                if (company.name === 'Bloomberg') {
+                    // Persist minimal profile
+                    const account = { org: 'Bloomberg', role: chosen, ts: Date.now() };
+                    try {
+                        localStorage.setItem('flowusAccount', JSON.stringify(account));
+                        document.cookie = `flowusOrg=Bloomberg; path=/; max-age=${60*60*24*30}`; // 30 days
+                    } catch (e) {}
+
+                    showToast(`Welcome to @bloomberg. Your assigned position: ${chosen}`, 'success');
+                    // Redirect user to downloads section; user can download manually
+                    setTimeout(() => { window.location.href = 'download.html?workflow=bloomberg#win'; }, 1000);
+                    return;
+                }
+
+                // Ether.fi default branch (existing behavior)
+                showToast(`Congratulations! You've been invited by a Colleague At @ether.fi workspace. You selected: ${chosen}`, 'success');
+                setTimeout(() => {
+                    document.getElementById('departmentSection').classList.remove('active');
+                    document.getElementById('inviteSection').classList.remove('active');
+                    document.getElementById('inviteCode').value = '';
+                    document.getElementById('applyDepartmentBtn').disabled = true;
+                }, 3000);
+            }
+        });
+
+        // Apply position (Bloomberg)
+        document.getElementById('applyPositionBtn').addEventListener('click', function(){
+            const selected = document.querySelector('#positionOptions .department-option.selected');
+            if (!selected) return;
+            const positionName = selected.querySelector('strong').textContent;
+            // Persist
+            try {
+                localStorage.setItem('workflowCompany', 'Bloomberg');
+                localStorage.setItem('workflowPosition', positionName);
+                document.cookie = `workflowCompany=Bloomberg; path=/; max-age=31536000`;
+                document.cookie = `workflowPosition=${encodeURIComponent(positionName)}; path=/; max-age=31536000`;
+            } catch(e){}
+            showToast('Welcome to @bloomberg. Redirecting you to download the Bloomberg workflow…', 'success');
+            setTimeout(()=>{
+                window.location.href = 'profile.html';
+            }, 1500);
+        });
+
+        // Login form submission
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            showToast('Login functionality is available in the full FlowUs application.', 'info');
+        });
+
+        // Allow Enter key to submit invite code
+        document.getElementById('inviteCode').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('submitInviteBtn').click();
+            }
+        });
+
+        // Initialize in login mode
+        setMode('login');
+    </script>
+<script src="./assets/profile.js"></script>
+</body>
+</html>

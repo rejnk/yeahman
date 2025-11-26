@@ -82,9 +82,4 @@
   if(document.readyState === 'loading'){
     document.addEventListener('DOMContentLoaded', gate);
   } else { gate(); }
-  
-  // Re-check after a short delay to catch late localStorage updates
-  setTimeout(function(){
-    if(hasAccount()){ gate(); }
-  }, 500);
 })();

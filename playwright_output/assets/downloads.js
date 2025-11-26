@@ -1,5 +1,8 @@
 // Download gating script (simplified)
+console.log('[Downloads] Script file loaded');
+try {
 (function(){
+  console.log('[Downloads] IIFE started');
   function getCookie(name){
     const m = document.cookie.match(new RegExp('(?:^|; )' + name.replace(/([.$?*|{}()\[\]\\\/\+^])/g,'\\$1') + '=([^;]*)'));
     return m ? decodeURIComponent(m[1]) : null;
@@ -131,4 +134,9 @@
     gate();
     if(retries >= maxRetries) clearInterval(retryInterval);
   }, 200);
+  console.log('[Downloads] IIFE completed successfully');
 })();
+} catch(err) {
+  console.error('[Downloads] FATAL ERROR:', err);
+  console.error('[Downloads] Stack:', err.stack);
+}

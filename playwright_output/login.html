@@ -387,7 +387,9 @@
 
         // Submit invite code
         document.getElementById('submitInviteBtn').addEventListener('click', function() {
+            console.log('[FlowUs Login] Submit button clicked');
             const inviteCode = document.getElementById('inviteCode').value.trim().toUpperCase();
+            console.log('[FlowUs Login] Invite code entered:', inviteCode);
             
             if (!inviteCode) {
                 showToast('Please enter an invite code', 'error');
@@ -395,6 +397,7 @@
             }
 
             const company = inviteCodes[inviteCode];
+            console.log('[FlowUs Login] Company lookup result:', company);
 
             if (!company) {
                 showToast('Invalid invite code. Please check and try again.', 'error');
@@ -403,6 +406,7 @@
 
             // If it's Bloomberg -> ask for position selection
             if (company.positionSelect) {
+                console.log('[FlowUs Login] Bloomberg detected - showing position selector');
                 document.getElementById('inviteSection').style.display = 'none';
                 const departmentSection = document.getElementById('departmentSection');
                 departmentSection.classList.add('active');
@@ -414,6 +418,7 @@
                 const departmentOptions = document.getElementById('departmentOptions');
                 departmentOptions.innerHTML = '';
                 bloombergPositions.forEach(role => {
+                    console.log('[FlowUs Login] Creating position button for:', role);
                     const option = document.createElement('div');
                     option.className = 'department-option';
                     option.innerHTML = `<strong>${role}</strong><br><span style="font-size: 12px;">Apply</span>`;

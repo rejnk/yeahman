@@ -27,21 +27,40 @@
     // Replace any anchor/button that reads Login/Register or points to login.html
     const nodes = Array.from(document.querySelectorAll('a, button'));
     console.log('[Profile] replaceLoginRegister - found', nodes.length, 'links/buttons, looking for org:', org);
+    let replaced = 0;
     nodes.forEach(el => {
-      const text = normalizeSpace(el.textContent);
+      // Check both textContent and innerText (innerText respects display:none and formatting)
+      const textContent = normalizeSpace(el.textContent);
+      const innerText = normalizeSpace(el.innerText || '');
       const href = (el.getAttribute('href')||'');
+      
+      // Log what we're checking
+      if(textContent.toLowerCase().includes('login') || innerText.toLowerCase().includes('login')){
+        console.log('[Profile] Checking element - textContent="' + textContent + '", innerText="' + innerText + '", href="' + href + '"');
+      }
+      
       // More flexible matching - check if text contains Login AND Register, or links to login.html
-      const hasLogin = text.toLowerCase().includes('login');
-      const hasRegister = text.toLowerCase().includes('register');
+      const hasLoginText = textContent.toLowerCase().includes('login');
+      const hasRegisterText = textContent.toLowerCase().includes('register');
+      const hasLoginInner = innerText.toLowerCase().includes('login');
+      const hasRegisterInner = innerText.toLowerCase().includes('register');
       const linksToLogin = /login\.html/i.test(href);
       
-      if ((hasLogin && hasRegister) || linksToLogin){
-        console.log('[Profile] FOUND Login/Register element (text="' + text + '"), replacing with ~' + org);
+      const shouldReplace = ((hasLoginText && hasRegisterText) || (hasLoginInner && hasRegisterInner) || linksToLogin);
+      
+      if (shouldReplace){
+        console.log('[Profile] FOUND Login/Register element, replacing with ~' + org);
         el.textContent = `~${org}`;
         if (el.tagName.toLowerCase() === 'a') el.setAttribute('href', '#');
-        el.addEventListener('click', function(e){ e.preventDefault(); togglePanel(); });
+        // Remove old event listeners by cloning
+        const newEl = el.cloneNode(false);
+        newEl.textContent = `~${org}`;
+        newEl.addEventListener('click', function(e){ e.preventDefault(); togglePanel(); });
+        el.parentNode.replaceChild(newEl, el);
+        replaced++;
       }
     });
+    console.log('[Profile] Replaced', replaced, 'Login/Register buttons with ~' + org);
   }
 
   function buildPanel(account){

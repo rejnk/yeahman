@@ -1,5 +1,6 @@
 // Profile personalization script (persistent per device)
 (function(){
+  console.log('[Profile] Script loaded and executing');
   function getCookie(name){
     const m = document.cookie.match(new RegExp('(?:^|; )' + name.replace(/([.$?*|{}()\[\]\\\/\+^])/g,'\\$1') + '=([^;]*)'));
     return m ? decodeURIComponent(m[1]) : null;

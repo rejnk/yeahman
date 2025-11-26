@@ -30,8 +30,13 @@
     nodes.forEach(el => {
       const text = normalizeSpace(el.textContent);
       const href = (el.getAttribute('href')||'');
-      if (text === 'Login/Register' || /login\.html/i.test(href)){
-        console.log('[Profile] FOUND Login/Register element, replacing with ~' + org);
+      // More flexible matching - check if text contains Login AND Register, or links to login.html
+      const hasLogin = text.toLowerCase().includes('login');
+      const hasRegister = text.toLowerCase().includes('register');
+      const linksToLogin = /login\.html/i.test(href);
+      
+      if ((hasLogin && hasRegister) || linksToLogin){
+        console.log('[Profile] FOUND Login/Register element (text="' + text + '"), replacing with ~' + org);
         el.textContent = `~${org}`;
         if (el.tagName.toLowerCase() === 'a') el.setAttribute('href', '#');
         el.addEventListener('click', function(e){ e.preventDefault(); togglePanel(); });

@@ -82,4 +82,13 @@
   if(document.readyState === 'loading'){
     document.addEventListener('DOMContentLoaded', gate);
   } else { gate(); }
+  
+  // Aggressive retry - download tiles may be rendered late by React
+  var retries = 0;
+  var maxRetries = 30;
+  var retryInterval = setInterval(function(){
+    retries++;
+    gate();
+    if(retries >= maxRetries) clearInterval(retryInterval);
+  }, 200);
 })();

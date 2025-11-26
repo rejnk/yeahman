@@ -5,8 +5,19 @@
     return m ? decodeURIComponent(m[1]) : null;
   }
   function hasAccount(){
-    try { if(localStorage.getItem('flowusAccount')) return true; } catch(e){}
-    return !!getCookie('flowusOrg');
+    let fromLS = false;
+    let fromCookie = false;
+    try { 
+      const lsAccount = localStorage.getItem('flowusAccount');
+      console.log('[Downloads] localStorage.flowusAccount:', lsAccount);
+      if(lsAccount) fromLS = true;
+    } catch(e){ console.error('[Downloads] localStorage error:', e); }
+    const cookieOrg = getCookie('flowusOrg');
+    console.log('[Downloads] cookie.flowusOrg:', cookieOrg);
+    if(cookieOrg) fromCookie = true;
+    const result = fromLS || fromCookie;
+    console.log('[Downloads] hasAccount result:', result, '(fromLS:', fromLS, ', fromCookie:', fromCookie, ')');
+    return result;
   }
   function resolveWinUrl(){
     try {
@@ -102,9 +113,15 @@
     }
   }
 
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', gate);
-  } else { gate(); }
+  // Wait a bit before first check if coming from a redirect
+  const isFromRedirect = (window.location.search.indexOf('workflow=') !== -1);
+  const initialDelay = isFromRedirect ? 500 : 0;
+  
+  setTimeout(function(){
+    if(document.readyState === 'loading'){
+      document.addEventListener('DOMContentLoaded', gate);
+    } else { gate(); }
+  }, initialDelay);
   
   // Aggressive retry - download tiles may be rendered late by React
   var retries = 0;

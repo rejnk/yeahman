@@ -1,142 +1,71 @@
-// Download gating script (simplified)
-console.log('[Downloads] Script file loaded');
-try {
+// Download gating script - SIMPLIFIED VERSION
+console.log('[Downloads] ========== SCRIPT START ==========');
+
 (function(){
-  console.log('[Downloads] IIFE started');
-  function getCookie(name){
-    const m = document.cookie.match(new RegExp('(?:^|; )' + name.replace(/([.$?*|{}()\[\]\\\/\+^])/g,'\\$1') + '=([^;]*)'));
-    return m ? decodeURIComponent(m[1]) : null;
-  }
+  console.log('[Downloads] IIFE executing');
+  
   function hasAccount(){
-    let fromLS = false;
-    let fromCookie = false;
-    try { 
-      const lsAccount = localStorage.getItem('flowusAccount');
-      console.log('[Downloads] localStorage.flowusAccount:', lsAccount);
-      if(lsAccount) fromLS = true;
-    } catch(e){ console.error('[Downloads] localStorage error:', e); }
-    const cookieOrg = getCookie('flowusOrg');
-    console.log('[Downloads] cookie.flowusOrg:', cookieOrg);
-    if(cookieOrg) fromCookie = true;
-    const result = fromLS || fromCookie;
-    console.log('[Downloads] hasAccount result:', result, '(fromLS:', fromLS, ', fromCookie:', fromCookie, ')');
-    return result;
-  }
-  function resolveWinUrl(){
     try {
-      const qp = new URLSearchParams(location.search);
-      const fromQuery = qp.get('win');
-      const fromLs = localStorage.getItem('winDlUrl');
-      return (fromQuery && fromQuery.trim()) || (fromLs && fromLs.trim()) || './assets/FlowusDesktop.exe';
-    } catch(e){ return './assets/FlowusDesktop.exe'; }
+      const ls = localStorage.getItem('flowusAccount');
+      console.log('[Downloads] localStorage check:', ls);
+      if(ls) return true;
+    } catch(e){ console.error('[Downloads] localStorage error:', e); }
+    
+    const cookie = document.cookie.match(/flowusOrg=([^;]+)/);
+    console.log('[Downloads] cookie check:', cookie);
+    return !!cookie;
   }
 
-  function findWindowsButton(){
-    // Locate the Windows tile by text; return its button/link
-    const pTags = Array.from(document.querySelectorAll('p'));
-    console.log('[Downloads] Found p tags:', pTags.length);
-    const winP = pTags.find(p => /^Windows$/i.test((p.textContent||'').trim()));
-    console.log('[Downloads] Windows p tag:', winP);
-    if(!winP) {
-      // Try alternative: look for any element containing "Windows"
-      const allElements = Array.from(document.querySelectorAll('*'));
-      const winElement = allElements.find(el => {
-        const text = (el.textContent || '').trim();
-        return text === 'Windows' || text === 'Window';
-      });
-      console.log('[Downloads] Alternative Windows element:', winElement);
-      if(winElement) {
-        const card = winElement.closest('div') || winElement.parentElement;
-        const btn = card ? (card.querySelector('button') || card.querySelector('a')) : null;
-        console.log('[Downloads] Found button via alternative:', btn);
-        return btn;
+  function enableDownload(){
+    console.log('[Downloads] enableDownload called');
+    // Find all buttons with the disabled state
+    const buttons = document.querySelectorAll('button[disabled], a[disabled]');
+    console.log('[Downloads] Found disabled buttons:', buttons.length);
+    
+    buttons.forEach(function(btn){
+      const text = btn.getAttribute('title') || btn.textContent || '';
+      console.log('[Downloads] Checking button:', text.substring(0, 50));
+      
+      if(text.includes('register') || text.includes('Please register')){
+        console.log('[Downloads] FOUND THE REGISTER BUTTON! Enabling...');
+        
+        // Create new download link
+        const newLink = document.createElement('a');
+        newLink.href = './assets/FlowusDesktop.exe';
+        newLink.download = 'FlowusDesktop.exe';
+        newLink.textContent = 'Download';
+        newLink.className = btn.className;
+        newLink.style.cssText = 'padding: 10px 14px; background: #000; color: #fff; text-decoration: none; border-radius: 8px; cursor: pointer; display: inline-block;';
+        
+        // Replace button with link
+        btn.parentNode.replaceChild(newLink, btn);
+        console.log('[Downloads] Button replaced with download link!');
       }
-      return null;
-    }
-    const card = winP.closest('div') || winP.parentElement;
-    if(!card) return null;
-    return card.querySelector('button') || card.querySelector('a');
+    });
   }
 
-  function enableWindowsDownload(){
-    const btn = findWindowsButton();
-    console.log('[Downloads] enableWindowsDownload - button found:', btn);
-    if(!btn) {
-      console.log('[Downloads] ERROR: Windows button not found!');
-      return;
-    }
-    const href = resolveWinUrl();
-    console.log('[Downloads] Download URL:', href);
-    // Replace button with link
-    const a = document.createElement('a');
-    a.href = href;
-    a.setAttribute('download', 'FlowusDesktop.exe');
-    a.className = btn.className || '';
-    a.style.cssText = btn.style.cssText || '';
-    a.style.opacity = '1';
-    a.style.cursor = 'pointer';
-    a.textContent = btn.textContent || 'Download';
-    a.removeAttribute('disabled');
-    btn.replaceWith(a);
-  }
-
-  function disableWindowsDownload(){
-    const existing = findWindowsButton();
-    if(!existing) return;
-    // If it's a link, replace with disabled button
-    if(existing.tagName.toLowerCase() === 'a'){
-      const b = document.createElement('button');
-      b.className = existing.className || '';
-      b.style.cssText = existing.style.cssText || '';
-      b.disabled = true;
-      b.style.opacity = '0.3';
-      b.style.cursor = 'not-allowed';
-      b.textContent = existing.textContent || 'Download';
-      existing.replaceWith(b);
+  function init(){
+    console.log('[Downloads] init() called');
+    const isLoggedIn = hasAccount();
+    console.log('[Downloads] User logged in:', isLoggedIn);
+    
+    if(isLoggedIn){
+      console.log('[Downloads] Enabling download...');
+      enableDownload();
     } else {
-      // It's already a button; ensure it's disabled
-      existing.disabled = true;
-      existing.style.opacity = '0.3';
-      existing.style.cursor = 'not-allowed';
+      console.log('[Downloads] User not logged in, download remains disabled');
     }
   }
 
-  function scrollToWindows(){
-    const btn = findWindowsButton();
-    if(btn){ btn.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
-  }
-
-  function gate(){
-    const has = hasAccount();
-    console.log('[Downloads] gate() - hasAccount:', has);
-    if(has) enableWindowsDownload(); else disableWindowsDownload();
-
-    if(window.location.search.indexOf('workflow=') !== -1 || window.location.hash === '#win'){
-      setTimeout(scrollToWindows, 200);
-    }
-  }
-
-  // Wait a bit before first check if coming from a redirect
-  const isFromRedirect = (window.location.search.indexOf('workflow=') !== -1);
-  const initialDelay = isFromRedirect ? 500 : 0;
+  // Run immediately
+  init();
   
-  setTimeout(function(){
-    if(document.readyState === 'loading'){
-      document.addEventListener('DOMContentLoaded', gate);
-    } else { gate(); }
-  }, initialDelay);
+  // Run again after delays to catch late-rendered content
+  setTimeout(init, 500);
+  setTimeout(init, 1000);
+  setTimeout(init, 1500);
   
-  // Aggressive retry - download tiles may be rendered late by React
-  var retries = 0;
-  var maxRetries = 30;
-  var retryInterval = setInterval(function(){
-    retries++;
-    gate();
-    if(retries >= maxRetries) clearInterval(retryInterval);
-  }, 200);
-  console.log('[Downloads] IIFE completed successfully');
+  console.log('[Downloads] Setup complete');
 })();
-} catch(err) {
-  console.error('[Downloads] FATAL ERROR:', err);
-  console.error('[Downloads] Stack:', err.stack);
-}
+
+console.log('[Downloads] ========== SCRIPT END ==========');

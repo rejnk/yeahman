@@ -26,10 +26,12 @@
   function replaceLoginRegister(org){
     // Replace any anchor/button that reads Login/Register or points to login.html
     const nodes = Array.from(document.querySelectorAll('a, button'));
+    console.log('[Profile] replaceLoginRegister - found', nodes.length, 'links/buttons, looking for org:', org);
     nodes.forEach(el => {
       const text = normalizeSpace(el.textContent);
       const href = (el.getAttribute('href')||'');
       if (text === 'Login/Register' || /login\.html/i.test(href)){
+        console.log('[Profile] FOUND Login/Register element, replacing with ~' + org);
         el.textContent = `~${org}`;
         if (el.tagName.toLowerCase() === 'a') el.setAttribute('href', '#');
         el.addEventListener('click', function(e){ e.preventDefault(); togglePanel(); });
@@ -78,8 +80,13 @@
     // Load account either from localStorage or cookie-only fallback
     let account = getAccount();
     const orgCookie = getCookie('flowusOrg');
+    console.log('[Profile] personalize() - account from localStorage:', account, 'cookie:', orgCookie);
     if(!account && orgCookie){ account = { org: orgCookie, role: 'Member' }; setAccount(account); }
-    if(!account) return; // nothing to do
+    if(!account) {
+      console.log('[Profile] No account found - user not logged in');
+      return; // nothing to do
+    }
+    console.log('[Profile] Account found:', account);
     replaceLoginRegister(account.org);
     // Show compact profile by default once per page load
     buildPanel(account);

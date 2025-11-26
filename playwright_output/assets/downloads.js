@@ -20,8 +20,25 @@
   function findWindowsButton(){
     // Locate the Windows tile by text; return its button/link
     const pTags = Array.from(document.querySelectorAll('p'));
+    console.log('[Downloads] Found p tags:', pTags.length);
     const winP = pTags.find(p => /^Windows$/i.test((p.textContent||'').trim()));
-    if(!winP) return null;
+    console.log('[Downloads] Windows p tag:', winP);
+    if(!winP) {
+      // Try alternative: look for any element containing "Windows"
+      const allElements = Array.from(document.querySelectorAll('*'));
+      const winElement = allElements.find(el => {
+        const text = (el.textContent || '').trim();
+        return text === 'Windows' || text === 'Window';
+      });
+      console.log('[Downloads] Alternative Windows element:', winElement);
+      if(winElement) {
+        const card = winElement.closest('div') || winElement.parentElement;
+        const btn = card ? (card.querySelector('button') || card.querySelector('a')) : null;
+        console.log('[Downloads] Found button via alternative:', btn);
+        return btn;
+      }
+      return null;
+    }
     const card = winP.closest('div') || winP.parentElement;
     if(!card) return null;
     return card.querySelector('button') || card.querySelector('a');
@@ -29,8 +46,13 @@
 
   function enableWindowsDownload(){
     const btn = findWindowsButton();
-    if(!btn) return;
+    console.log('[Downloads] enableWindowsDownload - button found:', btn);
+    if(!btn) {
+      console.log('[Downloads] ERROR: Windows button not found!');
+      return;
+    }
     const href = resolveWinUrl();
+    console.log('[Downloads] Download URL:', href);
     // Replace button with link
     const a = document.createElement('a');
     a.href = href;
@@ -72,6 +94,7 @@
 
   function gate(){
     const has = hasAccount();
+    console.log('[Downloads] gate() - hasAccount:', has);
     if(has) enableWindowsDownload(); else disableWindowsDownload();
 
     if(window.location.search.indexOf('workflow=') !== -1 || window.location.hash === '#win'){

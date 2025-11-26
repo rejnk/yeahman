@@ -88,8 +88,7 @@
     }
     console.log('[Profile] Account found:', account);
     replaceLoginRegister(account.org);
-    // Show compact profile by default once per page load
-    buildPanel(account);
+    // Don't auto-show panel - only show when user clicks ~Bloomberg
   }
 
   if(document.readyState === 'loading'){

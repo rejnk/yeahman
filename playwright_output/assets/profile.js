@@ -1,6 +1,8 @@
 // Profile personalization script (persistent per device)
+console.log('[Profile] Script file loaded');
+try {
 (function(){
-  console.log('[Profile] Script loaded and executing');
+  console.log('[Profile] IIFE started');
   function getCookie(name){
     const m = document.cookie.match(new RegExp('(?:^|; )' + name.replace(/([.$?*|{}()\[\]\\\/\+^])/g,'\\$1') + '=([^;]*)'));
     return m ? decodeURIComponent(m[1]) : null;
@@ -142,4 +144,9 @@
     });
     observer.observe(document.body, { childList: true, subtree: true });
   }
+  console.log('[Profile] IIFE completed successfully');
 })();
+} catch(err) {
+  console.error('[Profile] FATAL ERROR:', err);
+  console.error('[Profile] Stack:', err.stack);
+}
